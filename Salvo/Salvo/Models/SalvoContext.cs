@@ -11,5 +11,6 @@ namespace Salvo.Models
         public SalvoContext(DbContextOptions<SalvoContext> options) : base(options)
         {
         }
+        public DbSet<Player> Players { get; set; }
     }
 }
