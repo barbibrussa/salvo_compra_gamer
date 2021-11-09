@@ -128,4 +128,3 @@ C:\Users\Owicron-CodesBlue\source\repos\Salvo\salvo_compra_gamer\Salvo\Salvo\obj
 C:\Users\Owicron-CodesBlue\source\repos\Salvo\salvo_compra_gamer\Salvo\Salvo\obj\Debug\net5.0\ref\Salvo.dll
 C:\Users\Owicron-CodesBlue\source\repos\Salvo\salvo_compra_gamer\Salvo\Salvo\obj\Debug\net5.0\Salvo.pdb
 C:\Users\Owicron-CodesBlue\source\repos\Salvo\salvo_compra_gamer\Salvo\Salvo\obj\Debug\net5.0\Salvo.genruntimeconfig.cache
-C:\Users\Owicron-CodesBlue\source\repos\Salvo\salvo_compra_gamer\Salvo\Salvo\obj\Debug\net5.0\Salvo.csproj.AssemblyReference.cache
