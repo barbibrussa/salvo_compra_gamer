@@ -5,23 +5,15 @@ using System.Threading.Tasks;
 
 namespace Salvo.Models
 {
-    public class GamePlayer
+    public class Score
     {
         public long Id { get; set; }
-        public DateTime JoinDate { get; set; }
+        public double Point { get; set; }
+        public DateTime? FinishDate { get; set; }
 
         public long GameId { get; set; }
         public Game Game { get; set; }
-
         public long PlayerId { get; set; }
         public Player Player { get; set; }
-
-        public ICollection<Ship> Ships { get; set; }
-        public ICollection<Salvo> Salvos { get; set; }
-
-        public Score GetScore()
-        {
-            return Player.GetScore(Game);
-        }
     }
 }
