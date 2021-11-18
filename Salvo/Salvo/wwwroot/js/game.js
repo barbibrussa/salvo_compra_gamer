@@ -4,6 +4,7 @@
         games: [],
         scores: [],
         email: "",
+        name: "",
         password: "",
         modal: {
             tittle: "",
@@ -12,21 +13,24 @@
         player: null
     },
     mounted() {
-        this.showLogin(false);
-        axios.get('/api/games')
-            .then(response => {
-                this.player = response.data.email;
-                this.games = response.data.games;
-                this.getScores(this.games)
-                if (this.player == "Guest")
-                    this.showLogin(true);
-            })
-            .catch(error => {
-                alert("erro al obtener los datos");
-            });
+        this.getGames();
     },
     methods: {
-        showModal(show) {
+        getGames: function (){
+            this.showLogin(false);
+            axios.get('/api/games')
+                .then(response => {
+                    this.player = response.data.email;
+                    this.games = response.data.games;
+                    this.getScores(this.games)
+                    if (this.player == "Guest")
+                        this.showLogin(true);
+                })
+                .catch(error => {
+                    alert("erro al obtener los datos");
+                });
+        },
+        showModal: function (show) {
             if (show)
                 $("#infoModal").modal('show');
             else
@@ -38,6 +42,7 @@
                 $("#login-form").trigger("reset");
                 this.email = "";
                 this.password = "";
+                this.name = "";
             }
             else
                 $("#login-form").hide();
@@ -45,8 +50,10 @@
         logout: function () {
             axios.post('/api/auth/logout')
                 .then(result => {
-                    if (result.status == 200)
+                    if (result.status == 200) {
                         this.showLogin(true);
+                        this.getGames();
+                    }
                 })
                 .catch(error => {
                     alert("Ocurrió un error al cerrar sesión");
@@ -57,14 +64,39 @@
                 email: this.email, password: this.password
             })
                 .then(result => {
-                    if (result.status == 200)
+                    if (result.status == 200) {
                         this.showLogin(false);
+                        this.getGames();
+                    }
                 })
                 .catch(error => {
                     console.log("error, código de estatus: " + error.response.status);
                     if (error.response.status == 401) {
                         this.modal.tittle = "Falló la autenticación";
                         this.modal.message = "Email o contraseña inválido"
+                        this.showModal(true);
+                    }
+                    else {
+                        this.modal.tittle = "Fall&Oacute;la autenticaci&oacute;n";
+                        this.modal.message = "Ha ocurrido un error";
+                        this.showModal(true);
+                    }
+                });
+        },
+        signin: function (event) {
+            axios.post('/api/players', {
+                email: this.email, password: this.password, name: this.name,
+            })
+                .then(result => {
+                    if (result.status == 201) {
+                        this.login();
+                    }
+                })
+                .catch(error => {
+                    console.log("error, código de estatus: " + error.response.status);
+                    if (error.response.status == 403) {
+                        this.modal.tittle = "Falló el registro";
+                        this.modal.message = error.response.data
                         this.showModal(true);
                     }
                     else {
