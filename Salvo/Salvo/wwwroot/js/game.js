@@ -4,7 +4,6 @@
         games: [],
         scores: [],
         email: "",
-        name: "",
         password: "",
         modal: {
             tittle: "",
@@ -16,6 +15,31 @@
         this.getGames();
     },
     methods: {
+        joinGame(gId) {
+            var gpId = null;
+            axios.post('/api/games/' + gId + '/players')
+                .then(response => {
+                    gpId = response.data;
+                    window.location.href = '/game.html?gp=' + gpId;
+                })
+                .catch(error => {
+                    alert("erro al unirse al juego");
+                });
+        },
+        createGame() {
+            var gpId = null;
+            axios.post('/api/games')
+                .then(response => {
+                    gpId = response.data;
+                    window.location.href = '/game.html?gp=' + gpId;
+                })
+                .catch(error => {
+                    alert("erro al obtener los datos");
+                });
+        },
+        returnGame(gpId) {
+            window.location.href = '/game.html?gp=' + gpId;
+        },
         getGames: function (){
             this.showLogin(false);
             axios.get('/api/games')
@@ -42,7 +66,6 @@
                 $("#login-form").trigger("reset");
                 this.email = "";
                 this.password = "";
-                this.name = "";
             }
             else
                 $("#login-form").hide();
@@ -85,7 +108,7 @@
         },
         signin: function (event) {
             axios.post('/api/players', {
-                email: this.email, password: this.password, name: this.name,
+                email: this.email, password: this.password
             })
                 .then(result => {
                     if (result.status == 201) {

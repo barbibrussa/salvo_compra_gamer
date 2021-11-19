@@ -17,9 +17,13 @@ namespace Salvo.Controllers
     public class GamesController : ControllerBase
     {
         private IGameRepository _repository;
-        public GamesController(IGameRepository repository)
+        private IPlayerRepository _playerRepository;
+        private IGamePlayerRepository _gamePlayerRepository;
+        public GamesController(IGameRepository repository, IPlayerRepository playerRepository, IGamePlayerRepository gamePlayerRepository)
         {
             _repository = repository;
+            _playerRepository = playerRepository;
+            _gamePlayerRepository = gamePlayerRepository;
         }
 
         // GET: api/<GamesController>
@@ -53,6 +57,74 @@ namespace Salvo.Controllers
 
                 return Ok(gameList);
             } 
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult Post()
+        {
+            try
+            {
+                string email = User.FindFirst("Player") != null ? User.FindFirst("Player").Value : "Guest";
+
+                Player player = _playerRepository.FindByEmail(email);
+                DateTime currentDate = DateTime.Now;
+                GamePlayer gamePlayer = new GamePlayer
+                {
+                    Game = new Game
+                    {
+                        CreationDate = currentDate,
+                    },
+                    PlayerId = player.Id,
+                    JoinDate = currentDate,
+                };
+
+                _gamePlayerRepository.Save(gamePlayer);
+
+                return StatusCode(201, gamePlayer.Id);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("{id}/players", Name = "Join")]
+        public IActionResult Join(long id)
+        {
+            try
+            {
+                string email = User.FindFirst("Player") != null ? User.FindFirst("Player").Value : "Guest";
+
+                Player player = _playerRepository.FindByEmail(email);
+                Game game = _repository.FindById(id);
+
+                if (game == null)
+                {
+                    return StatusCode(403, "The game doesn't exist");
+                }
+
+                if (game.GamePlayers.Where(gp => gp.Player.Id == player.Id).FirstOrDefault() != null)
+                    return StatusCode(403, "The player is on the game already");
+
+                if (game.GamePlayers.Count > 1)
+                    return StatusCode(403, "The game is full");
+
+                GamePlayer gamePlayer = new GamePlayer
+                {
+                    GameId = game.Id,
+                    PlayerId = player.Id,
+                    JoinDate = DateTime.Now
+                };
+
+                _gamePlayerRepository.Save(gamePlayer);
+
+                return StatusCode(201, gamePlayer.Id);
+            }
             catch(Exception ex)
             {
                 return StatusCode(500, ex.Message);
