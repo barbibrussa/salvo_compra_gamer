@@ -82,5 +82,56 @@ namespace Salvo.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpPost("{id}/ships", Name = "ships")]
+        public IActionResult Post(long id, [FromBody] ICollection<ShipDTO> ships)
+        {
+            try
+            {
+                string email = User.FindFirst("Player") != null ? User.FindFirst("Player").Value : "Guest";
+
+                var gamePlayer = _repository.FindById(id);
+
+                if (gamePlayer == null)
+                    return StatusCode(403, "The game doesn't exist");
+                if (gamePlayer.Player.Email != email)
+                    return StatusCode(403, "The user is not part of the game");
+                if (gamePlayer.Ships.Count == 5)
+                    return StatusCode(403, "The ships are already positioned");
+
+                //gamePlayer.Ships = ships.Select(ship => new Ship
+                // {
+                //   GamePlayerId = gamePlayer.Id,
+                //   Type = ship.Type,
+                //   Locations = ship.Locations.Select(location => new ShipLocation
+                //    {
+                //        ShipId = ship.Id,
+                //        Location = location.Location
+                //    }).ToList()                   
+                // }).ToList();
+
+                foreach(ShipDTO shipDTO in ships)
+                {
+                    gamePlayer.Ships.Add(new Ship
+                    {
+                        GamePlayerId = id,
+                        Locations = shipDTO.Locations.Select(location => new ShipLocation
+                        {
+                            Location = location.Location
+                        }).ToList(),
+                        Type = shipDTO.Type
+                    });
+                }
+
+                _repository.Save(gamePlayer);
+
+                return StatusCode(201, "Created");
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
+
 }
