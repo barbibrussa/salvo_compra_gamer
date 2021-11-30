@@ -72,7 +72,11 @@ namespace Salvo.Controllers
                              Id = salvoLocation.Id,
                              Location = salvoLocation.Location
                          }).ToList()
-                    })).ToList()
+                    })).ToList(),
+                    Hits = gp.GetHits(),
+                    HitsOpponent = gp.GetOpponent()?.GetHits(),
+                    Sunks = gp.GetSunks(),
+                    SunksOpponent = gp.GetOpponent()?.GetSunks()
                 };
 
                 return Ok(gameView);
@@ -126,6 +130,65 @@ namespace Salvo.Controllers
                 _repository.Save(gamePlayer);
 
                 return StatusCode(201, "Created");
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("{id}/salvos", Name = "salvos")]
+        public IActionResult Post(long id, [FromBody] SalvoDTO salvo)
+        {
+            try
+            {  
+                string email = User.FindFirst("Player") != null ? User.FindFirst("Player").Value : "Guest";
+
+                var gamePlayer = _repository.FindById(id);
+
+                GamePlayer opponentPlayer = gamePlayer.GetOpponent();
+
+                if (gamePlayer == null)
+                    return StatusCode(403, "The game doesn't exist");
+                if (gamePlayer.Player.Email != email)
+                    return StatusCode(403, "The user is not part of the game");
+                if (opponentPlayer == null)
+                    return StatusCode(403, "You doesnt have an opponent");
+                if (gamePlayer.Ships.Count < 5 || opponentPlayer.Ships.Count < 5)
+                    return StatusCode(403, "The ships aren't positionated");
+                if (gamePlayer.Salvos.Count > opponentPlayer.Salvos.Count)
+                    return StatusCode(403, "Is not your turn");
+                if (gamePlayer.Salvos.Count == opponentPlayer.Salvos.Count && gamePlayer.JoinDate > opponentPlayer.JoinDate)
+                    return StatusCode(403, "Is not your turn");
+
+                // int playerTurn = 0;
+                // int opponentTurn = 0;
+
+                // if ((playerTurn - opponentTurn) < -1 || (playerTurn - opponentTurn) > 1)
+                // {
+                //   return StatusCode(403, "Is not your turn");
+                // }
+
+                // playerTurn = gamePlayer.Salvos != null ? gamePlayer.Salvos.Count() + 1 : 1;
+
+                // if(opponentPlayer != null)
+                // {
+                //     opponentTurn = opponentPlayer.Salvos != null ? opponentPlayer.Salvos.Count() : 0;
+                // }              
+
+                gamePlayer.Salvos.Add(new Models.Salvo
+                {
+                    GamePlayerId = id,
+                    Turn = gamePlayer.Salvos.Count + 1,
+                    Locations = salvo.Locations.Select(location => new SalvoLocation
+                    {
+                        Location = location.Location
+                    }).ToList()
+                });
+
+                _repository.Save(gamePlayer);
+
+                return StatusCode(201);
             }
             catch(Exception ex)
             {
