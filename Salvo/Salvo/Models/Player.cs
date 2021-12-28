@@ -11,6 +11,7 @@ namespace Salvo.Models
         public string Name { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public string Avatar { get; set; }
 
         public ICollection<GamePlayer> GamePlayers { get; set; }
         public ICollection<Score> Scores { get; set; }
