@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil</title>
+    <link rel="shortcut icon" href="/img/favicon.png">
+    <!--/Agregado-->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+    <!--/Agregado-->
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+    <link rel="stylesheet" href="css/perfil.css" />
+
+</head>
+
+<body>
+
+    <div id="app">
+        <!-- Image and text -->
+        <nav class="navbar navbar-light bg-light navbar-expand-md justify-content-between">
+            <a class="navbar-brand" href="/index.html">
+                <img src="img/target.jpg" width="30" height="30" class="d-inline-block align-top" alt=""> Salvo
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <button id="logout-btn" class="btn btn-outline-secondary ml-1 my-2 my-sm-0" type="button">Logout</button>
+
+        </nav>
+        <div class="container mt-5">
+            <br /><br />
+            <div class="row justify-content-center">
+                <div class="col-7 text-center">
+                    <h1>Perfil</h1>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col d-flex justify-content-center">
+                    <div class="container__img">
+                        <button data-toggle="modal" data-target="#imagesModal">
+                            <img v-bind:src="'images/' + avatar" class="img" alt="Image Perfil">
+                        </button>
+                    </div>
+                </div>
+                <div class="col d-flex flex-column align-center justify-content-center">
+                    <div class="mt-1 mb-3">
+                        <label>Nombre:</label>
+                        <span id="name" v-if="name != null">{{name}}</span>
+                        <button class="button__perfil" data-toggle="modal" data-target="#modificarModal" v-on:click="changeName" type="button">Cambiar</button>
+                    </div>
+                    <div class="mt-1 mb-3">
+                        <label>Mail:</label>
+                        <span id="mail" v-if="email != null">{{email}}</span>
+                        <button class="button__perfil" data-toggle="modal" data-target="#modificarModal" v-on:click="changeEmail" type="button">Cambiar</button>
+                    </div>
+                    <div class="mt-1 mb-3">
+                        <label>Contraseña:</label>
+                        <span id="password">******</span>
+                        <button class="button__perfil" data-toggle="modal" data-target="#modificarModal" v-on:click="changePassword" type="button">Cambiar</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row mt-5 flex-column align-center justify-content-center">
+                <div class="text-center gamesPlayed">
+                    <h3>Partidas Jugadas</h3>
+                    <span id="partidasTotales" v-if="totalGamesPlayed != null"> <i class="fas fa-ship"></i> {{totalGamesPlayed}}</span>
+                </div>
+
+                <div class="graficoProgreso">
+
+                    <div class="container__progreso">
+                        <div class="container__numeros">
+                            <div v-if="wins != null && wins != '0 Victorias'">
+                                <i class="fas fa-plus-square winIcon"></i>
+                                <span id="porcentaje" class="winCount">{{winsPercent}}%</span>
+                            </div>
+
+                            <div v-if="ties != null && ties != '0 Empates'">
+                                <i class="fas fa-equals tieIcon"></i>
+                                <span id="porcentaje" class="tiesCount">{{tiesPercent}}%</span>
+                            </div>
+
+                            <div v-if="defeats != null && defeats != '0 Derrotas'">
+                                <i class="fas fa-minus-square defeatIcon"></i>
+                                <span id="porcentaje" class="defeatsCount">{{defeatsPercent}}%</span>
+                            </div>
+                        </div>
+
+                        <div class="progreso">
+                            <div class="wins"></div>
+                            <div class="ties"></div>
+                            <div class="defeats"></div>
+                        </div>
+                        <div class="container__numeros">
+                            <span id="victorias" class="winCount" v-if="wins != null && wins != '0 Victorias'">{{wins}}</span>
+                            <span id="empates" class="tiesCount" v-if="ties != null && ties != '0 Empates'">{{ties}}</span>
+                            <span id="derrotas" class="defeatsCount" v-if="defeats != null && defeats != '0 Derrotas'">{{defeats}}</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="modificarModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="titleForm"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="login-form" class="my-2 my-lg-0 text-center flex-column align-center">
+                            <input v-model:value="name" class="form-control mr-sm-2 formInput" type="text" placeholder="Nuevo Nombre" aria-label="Name" id="inputPerfilName">
+                            <input v-model:value="email" class="form-control mr-sm-2 formInput" type="email" placeholder="Email" aria-label="Email" id="inputPerfilEmail">
+                            <input v-model:value="password" class="form-control mr-sm-2 formInput" type="password" placeholder="Contrase&ntilde;a actual" aria-label="Contraseña" id="inputPerfilPassword">
+
+                            <input v-model:value="newPassword" class="form-control mr-sm-2 formInput" type="password" placeholder="Nueva Contrase&ntilde;a" aria-label="Nueva Contraseña" id="inputNewPassword">
+                            <input v-model:value="newPasswordRepeat" class="form-control mr-sm-2 formInput" type="password" placeholder="Repetir Nueva Contrase&ntilde;a" aria-label="Repetir Nueva Contraseña" id="inputNewPassword2">
+                            <span class="messageNone"></span>
+                            <button id="changeName-btn" v-on:click="ChangeName" class="btn btn-outline-primary ml-1 mr-1 my-2 my-sm-0" type="button">Guardar</button>
+                            <button id="changeMail-btn" v-on:click="ChangeMail" class="btn btn-outline-primary ml-1 mr-1 my-2 my-sm-0" type="button">Guardar</button>
+                            <button id="changePassword-btn" v-on:click="ChangePassword" class="btn btn-outline-primary ml-1 mr-1 my-2 my-sm-0" type="button">Guardar</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- /Modal -->
+
+        <!-- Modal -->
+        <div class="modal fade" id="imagesModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="titleForm">Imagenes</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="avatar-form" class="my-2 my-lg-0">
+                            <div class="container__general centerForm">
+                                <div>
+                                    <v-avatar size="128">
+                                        <img src="/Images/1.jpg" alt="image" class="img">
+                                    </v-avatar>
+                                    <input type="radio" value="1.jpg" name="imagen">
+                                </div>
+
+                                <div>
+                                    <v-avatar size="128">
+                                        <img src="/Images/2.jpg" alt="image" class="img">
+                                    </v-avatar>
+                                    <input type="radio" value="2.jpg" name="imagen">
+                                </div>
+
+                                <div>
+                                    <v-avatar size="128">
+                                        <img src="/Images/3.jpg" alt="image" class="img">
+                                    </v-avatar>
+                                    <input type="radio" value="3.jpg" name="imagen">
+                                </div>
+
+                                <div>
+                                    <v-avatar size="128">
+                                        <img src="/Images/4.jpg" alt="image" class="img">
+                                    </v-avatar>
+                                    <input type="radio" value="4.jpg" name="imagen">
+                                </div>
+
+                                <div>
+                                    <v-avatar size="128">
+                                        <img src="/Images/5.jpg" alt="image" class="img">
+                                    </v-avatar>
+                                    <input type="radio" value="5.jpg" name="imagen">
+                                </div>
+
+                                <div>
+                                    <v-avatar size="128">
+                                        <img src="/Images/6.jpg" alt="image" class="img">
+                                    </v-avatar>
+                                    <input type="radio" value="6.jpg" name="imagen">
+                                </div>
+
+                                <div>
+                                    <v-avatar size="128">
+                                        <img src="/Images/7.jpg" alt="image" class="img">
+                                    </v-avatar>
+                                    <input type="radio" value="7.jpg" name="imagen">
+                                </div>
+
+                                <div>
+                                    <v-avatar size="128">
+                                        <img src="/Images/8.jpg" alt="image" class="img">
+                                    </v-avatar>
+                                    <input type="radio" value="8.jpg" name="imagen">
+                                </div>
+
+                                <div>
+                                    <v-avatar size="128">
+                                        <img src="/Images/9.jpg" alt="image" class="img">
+                                    </v-avatar>
+                                    <input type="radio" value="9.jpg" name="imagen">
+                                </div>
+
+
+                            </div>
+
+
+
+                            <button id="changeAvatar-btn" v-on:click="ChangeAvatar" class="btn btn-outline-primary ml-1 mr-1 my-2 my-sm-0" type="button">Guardar</button>
+                            <span id="message"></span>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- /Modal -->
+
+
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/es.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!--/Agregado-->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <!--/Agregado-->
+    <script src="js/perfil.js"></script>
+</body>
+
+
+
+</html>
