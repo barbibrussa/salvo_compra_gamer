@@ -17,25 +17,29 @@ namespace Salvo.Models
                     {
                         Email = "j.bauer@ctu.gov",
                         Name = "Jack Bauer",
-                        Password = "24"
+                        Password = "24",
+                        Avatar = "1.jpg"
                     },
                     new Player
                     {
                         Email = "c.obrian@ctu.gov",
                         Name = "Chloe O'Brian",
-                        Password = "42"
+                        Password = "42",
+                        Avatar = "1.jpg"
                     },
                     new Player
                     {
                         Email="kim_bauer@gmail.com",
                         Name="Kim Bauer",
-                        Password="kb"
+                        Password="kb",
+                        Avatar = "1.jpg"
                     },
                     new Player
                     {
                         Email="t.almeida@ctu.gov",
                         Name="Tony Almeida",
-                        Password="mole"
+                        Password="mole",
+                        Avatar = "1.jpg"
                     }
                 };
                 

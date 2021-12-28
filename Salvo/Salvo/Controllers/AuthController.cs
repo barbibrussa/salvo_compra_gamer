@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Salvo.Controllers
@@ -30,12 +32,18 @@ namespace Salvo.Controllers
             try
             {
                 Player user = _repository.FindByEmail(player.Email);
+
+                byte[] data = Encoding.ASCII.GetBytes(player.Password);
+                data = new SHA256Managed().ComputeHash(data);
+                string passwordHash = Encoding.ASCII.GetString(data);
+
                 if (user == null || !String.Equals(user.Password, player.Password))
                     return Unauthorized();
 
                 var claims = new List<Claim>
                     {
-                        new Claim("Player", user.Email)
+                        new Claim("Player", user.Email),
+                        new Claim("Avatar", user.Avatar)
                     };
 
                 var claimsIdentity = new ClaimsIdentity(

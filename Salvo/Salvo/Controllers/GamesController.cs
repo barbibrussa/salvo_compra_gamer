@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Salvo.Models;
 using Salvo.Repositories;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,6 +37,7 @@ namespace Salvo.Controllers
                 GameListDTO gameList = new GameListDTO
                 {
                     Email = User.FindFirst("Player") != null ? User.FindFirst("Player").Value : "Guest",
+                    Avatar = User.FindFirst("Avatar") != null ? User.FindFirst("Avatar").Value : "Images/1.jpg",
                     Games = _repository.GetAllGamesWithPlayers()
                     .Select(g => new GameDTO
                     {
@@ -48,7 +50,9 @@ namespace Salvo.Controllers
                             Player = new PlayerDTO
                             {
                                 Id = gp.Player.Id,
-                                Email = gp.Player.Email
+                                Name = (gp.Player.Name.Length > 10) ? gp.Player.Name.Substring(0, 10) + "..." : gp.Player.Name,
+                                Email = gp.Player.Email,
+                                Avatar = gp.Player.Avatar
                             },
                             Point = gp.GetScore() != null ? (double?)gp.GetScore().Point : null
                         }).ToList()
@@ -60,6 +64,69 @@ namespace Salvo.Controllers
             catch(Exception ex)
             {
                 return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("topTypes")]
+        [AllowAnonymous]
+        public IActionResult GetTopTypeDestroyed()
+        {
+            try
+            {
+                List<String> Sunks = new List<String>();
+                var games = _repository.GetAllGamesWithPlayersAndSalvos();
+                foreach (var game in games)
+                {
+                    foreach (var gp in game.GamePlayers)
+                    {
+                        Sunks.AddRange(gp.GetSunks());
+                    }
+                }
+                var types = Sunks
+                     .GroupBy(i => i)
+                     .OrderByDescending(g => g.Count());
+
+                IEnumerable sunksTop5 = types.Take(5).Select(type => new
+                {
+                    type = type.First(),
+                    quantity = type.Count()
+                });
+
+
+                return Ok(sunksTop5);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(403, ex.Message);
+            }
+        }
+
+        [HttpGet("topLocations")]
+        [AllowAnonymous]
+        public IActionResult GetTopLocationsDestroyed()
+        {
+            try
+            {
+                IEnumerable<String> salvoLocations = _repository.GetAllSalvoLocations()
+                .SelectMany(game => game.GamePlayers)
+                    .SelectMany(gp => gp.Salvos)
+                        .SelectMany(salvo => salvo.Locations)
+                            .Select(location => location.Location);
+
+                var locations = salvoLocations
+                     .GroupBy(i => i)
+                     .OrderByDescending(g => g.Count());
+
+                IEnumerable mayores = locations.Take(5).Select(location => new
+                {
+                    position = location.First(),
+                    quantity = location.Count()
+                });
+                return Ok(mayores);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(403, ex.Message);
             }
         }
 
@@ -126,6 +193,66 @@ namespace Salvo.Controllers
                 return StatusCode(201, gamePlayer.Id);
             }
             catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("infoPlayer")]
+        public IActionResult InfoPlayer()
+        {
+            try
+            {
+                string email = User.FindFirst("Player") != null ? User.FindFirst("Player").Value : "Guest";
+                Player player = _playerRepository.FindByEmail(email);
+
+
+
+                GameListDTO gameList = new GameListDTO
+                {
+                    Email = User.FindFirst("Player") != null ? User.FindFirst("Player").Value : "Guest",
+                    Avatar = User.FindFirst("Avatar") != null ? User.FindFirst("Avatar").Value : "Images/1.jpg",
+                    Games = _repository.GetGamesFromPlayer(player.Id)
+                    .Select(game => new GameDTO
+                    {
+                        Id = game.Id,
+                        CreationDate = game.CreationDate,
+                        GamePlayers = game.GamePlayers.Select(gp => new GamePlayerDTO
+                        {
+                            Id = gp.Id,
+                            JoinDate = gp.JoinDate,
+                            Player = new PlayerDTO
+                            {
+                                Id = gp.Player.Id,
+                                Name = (gp.Player.Name.Length > 10) ? gp.Player.Name.Substring(0, 10) + "..." : gp.Player.Name,
+                                Email = gp.Player.Email,
+                                Avatar = gp.Player.Avatar
+                            },
+                            Point = gp.GetScore() != null ? (double?)gp.GetScore().Point : null
+                        }).ToList()
+                    }).ToList()
+                };
+
+                var gamesWins = gameList.Games.Where(game => game.GamePlayers.FirstOrDefault(gp => gp.Player.Id == player.Id).Point == 1).ToList().Count;
+
+                var gamesLoss = gameList.Games.Where(game => game.GamePlayers.FirstOrDefault(gp => gp.Player.Id == player.Id).Point == 0).ToList().Count;
+
+                var gamesTies = gameList.Games.Where(game => game.GamePlayers.FirstOrDefault(gp => gp.Player.Id == player.Id).Point == 0.5).ToList().Count;
+
+                var gamesNotFinished = gameList.Games.Where(game => game.GamePlayers.FirstOrDefault(gp => gp.Player.Id == player.Id).Point == null).ToList().Count;
+
+                ResultsDTO resultado = new ResultsDTO
+                {
+                    Wins = gamesWins,
+                    Defeats = gamesLoss,
+                    Ties = gamesTies,
+                    TotalGamesPlayed = gameList.Games.Count - gamesNotFinished
+                };
+
+                return StatusCode(201, resultado);
+
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
