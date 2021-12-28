@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\Owicron-CodesBlue\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\Owicron-CodesBlue\\.nuget\\packages"
+    ]
+  }
+}

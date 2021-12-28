@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Salvo.Models;
 using Salvo.Repositories;
 using System;
@@ -12,6 +13,7 @@ namespace Salvo.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class GamesController : ControllerBase
     {
         private IGameRepository _repository;
@@ -22,12 +24,17 @@ namespace Salvo.Controllers
 
         // GET: api/<GamesController>
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Get()
         {
             try 
             {
-                var games = _repository.GetAllGamesWithPlayers()
-                    .Select(g=> new GameDTO { 
+                GameListDTO gameList = new GameListDTO
+                {
+                    Email = User.FindFirst("Player") != null ? User.FindFirst("Player").Value : "Guest",
+                    Games = _repository.GetAllGamesWithPlayers()
+                    .Select(g => new GameDTO
+                    {
                         Id = g.Id,
                         CreationDate = g.CreationDate,
                         GamePlayers = g.GamePlayers.Select(gp => new GamePlayerDTO
@@ -41,38 +48,15 @@ namespace Salvo.Controllers
                             },
                             Point = gp.GetScore() != null ? (double?)gp.GetScore().Point : null
                         }).ToList()
-                    });
-                return Ok(games);
+                    }).ToList()
+                };
+
+                return Ok(gameList);
             } 
             catch(Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
-        }
-
-        // GET api/<GamesController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<GamesController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<GamesController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<GamesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Salvo.Models;
 using Salvo.Repositories;
 using System;
@@ -12,18 +13,12 @@ namespace Salvo.Controllers
 {
     [Route("api/gamePlayers")]
     [ApiController]
+    [Authorize("PlayerOnly")]
     public class GamePlayersController : ControllerBase
     {
         private IGamePlayerRepository _repository;
         public GamePlayersController(IGamePlayerRepository repository) {
             _repository = repository;
-        }
-
-        // GET: api/<GamePlayersController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
         }
 
         // GET api/<GamePlayersController>/5
@@ -80,24 +75,6 @@ namespace Salvo.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-        }
-
-        // POST api/<GamePlayersController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<GamePlayersController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<GamePlayersController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }
