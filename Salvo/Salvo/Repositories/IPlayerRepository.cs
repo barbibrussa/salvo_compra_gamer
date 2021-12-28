@@ -8,6 +8,9 @@ namespace Salvo.Repositories
 {
     public interface IPlayerRepository : IRepositoryBase<Player>
     {
-        Player FindByEmail(string email);      
+        Player FindByEmail(string email);
+        void Save(Player player);
+
+        Boolean ValidatePassword(string password, out string ErrorMessage);
     }
 }
