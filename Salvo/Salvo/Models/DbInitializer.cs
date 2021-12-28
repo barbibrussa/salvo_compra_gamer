@@ -46,6 +46,52 @@ namespace Salvo.Models
                 
                 context.SaveChanges();
             }
+
+            if (!context.Games.Any())
+            {
+                var games = new Game[]
+                {
+                    new Game
+                    {
+                        CreationDate = DateTime.Now
+                    },
+                    new Game
+                    {
+                        CreationDate = DateTime.Now.AddHours(1)
+                    },
+                    new Game
+                    {
+                        CreationDate = DateTime.Now.AddHours(2)
+                    },
+                    new Game
+                    {
+                        CreationDate = DateTime.Now.AddHours(3)
+                    },
+                    new Game
+                    {
+                        CreationDate = DateTime.Now.AddHours(4)
+                    },
+                    new Game
+                    {
+                        CreationDate = DateTime.Now.AddHours(5)
+                    },
+                    new Game
+                    {
+                        CreationDate = DateTime.Now.AddHours(6)
+                    },
+                    new Game
+                    {
+                        CreationDate = DateTime.Now.AddHours(7)
+                    },
+                };
+
+                foreach (Game game in games)
+                {
+                    context.Games.Add(game);
+                }
+
+                context.SaveChanges();
+            }
         }
     }
 }
